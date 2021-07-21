@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import re
 
 from advanced_ops import *
 
@@ -24,71 +25,39 @@ def read_matrix(matrix_string):
 
 
 def main():
-    # create memory to store values
+# create memory to store values
     variable_memory = dict()
+
+# create regex for valid var names
+    variable_format = re.compile(r'[^\W\d_]+[^\W]*')
     
-    # Start read loop
+# Start read loop
     while True:
         input_line = input(">> ")
 
-        # exit loop
+    # exit loop
         if(input_line == "exit"):
             break
 
-        store_result = False
-        first_var = True
-
-        for i in range(len(input_line)):
-            if input_line[i].isalpha(): # handle variables/function calls
-
-                # check for function calls (VERY BAD input handling rn lol)
-                if(input_line[i:i+6] == "reduce"):
-                    var_name = input_line[7:len(input_line)-1]
-                    if(var_name in variable_memory):
-                        row_reduce(variable_memory[var_name].copy())
-                    else:
-                        print("Given variable '{var_name}' is not defined.".format(var_name = var_name))
-                    break
-                if(input_line[i:i+3] == "mem"):
-                    print(variable_memory)
-                    break
-                
-                # read var name
-                j = i
-                while (j < len(input_line)) and input_line[j].isalnum():
-                    j = j + 1
-                var_name = input_line[i:j]
-
-                i = j - 1 # places you on end of var_name
-
-                #check if variable is already defined
-                if var_name in variable_memory: # if yes, handle (TO DO)
-                    print("Var {var_name} is defined".format(var_name = var_name))
-                elif first_var: # if no, check if var is being defined (if not throw error)
-                    stripped_string = input_line[j:].strip(' ')
-                    if len(stripped_string) > 0 and stripped_string[0] == '=': # if not end of string and equal is next chara
-                        store_result = True
-                        store_var = var_name
-                    else: 
-                        print("Invalid input. Please enter a valid expression")
-                        break
-                else: # throw error since a variable can't be defined mid-expression
-                    print("Given variable '{var_name}' is not defined.".format(var_name = var_name))
-                    break
-            
-                first_var = False
-                
-            elif input_line[i] == '[': # handle matrix input
-                matrix_string = input_line[i:input_line.find(']',i)+1]
-                np_matrix = np.array(read_matrix(matrix_string))
-
-                if store_result:
-                    variable_memory[var_name] = np_matrix
-
-                i = input_line.find(']',i) + 1
+    # identify if we are storing result or not
+        store_result = True if input_line.find('=') != -1 else False
+    # if we're storing the result, identify the variable name
+        if store_result:
+            var_name = input_line[:input_line.find('=')].strip()
+            print(var_name)
+        # if the variable name isn't valid throw error
+            if(not variable_format.fullmatch(var_name)):
+                print("Invalid Variable Name : {var_name}".format(var_name=var_name))
                 continue
+        # update the input line to only contain the expression to evaluate now
+            input_line = input_line[input_line.find('=')+1:].strip()
+            print(input_line)
 
-        # print(np_matrix)
+        # iterate through the string and simplify it one step at a time following PEMDAS + replace computations as you go + error handle as you go
+        for i, char in enumerate(input_line):
+            print(char)
+            
+
 
 # Major Cases:
 # Assignment vs no-assigment
