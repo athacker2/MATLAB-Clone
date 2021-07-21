@@ -3,6 +3,7 @@ import numpy as np
 import re
 
 from advanced_ops import *
+from input_handling import *
 
 def read_matrix(matrix_string):
     matrix_nums = list()
@@ -35,25 +36,31 @@ def main():
     while True:
         input_line = input(">> ")
 
-    # exit loop
+        # exit loop
         if(input_line == "exit"):
             break
 
-    # identify if we are storing result or not
+        # identify if we are storing result or not
         store_result = True if input_line.find('=') != -1 else False
-    # if we're storing the result, identify the variable name
+        # if we're storing the result, identify the variable name
         if store_result:
             var_name = input_line[:input_line.find('=')].strip()
             print(var_name)
-        # if the variable name isn't valid throw error
+            # if the variable name isn't valid throw error
             if(not variable_format.fullmatch(var_name)):
                 print("Invalid Variable Name : {var_name}".format(var_name=var_name))
                 continue
-        # update the input line to only contain the expression to evaluate now
+            # update the input line to only contain the expression to evaluate now
             input_line = input_line[input_line.find('=')+1:].strip()
-            print(input_line)
+            print("Expression:", input_line)
 
+        # ensure all variables used in expression are defined, else throw error
+        if not all_vars_exist(input_line, variable_memory):
+            continue
+        
         # iterate through the string and simplify it one step at a time following PEMDAS + replace computations as you go + error handle as you go
+
+
         for i, char in enumerate(input_line):
             print(char)
             
