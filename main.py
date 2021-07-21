@@ -41,7 +41,7 @@ def main():
         for i in range(len(input_line)):
             if input_line[i].isalpha(): # handle variables/function calls
 
-                check for function calls (VERY BAD input handling rn lol)
+                # check for function calls (VERY BAD input handling rn lol)
                 if(input_line[i:i+6] == "reduce"):
                     var_name = input_line[7:len(input_line)-1]
                     if(var_name in variable_memory):
