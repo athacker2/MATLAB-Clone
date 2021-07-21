@@ -1,6 +1,8 @@
 import sys
 import numpy as np
 
+from advanced_ops import *
+
 def read_matrix(matrix_string):
     matrix_nums = list()
     current_row = list()
@@ -12,7 +14,7 @@ def read_matrix(matrix_string):
         chara = matrix_string[i]
         if chara.isdigit() or chara == '-':
             end_index = min({matrix_string.find(" ",i) if matrix_string.find(" ",i) != -1 else len(matrix_string), matrix_string.find(";",i) if matrix_string.find(";",i) != -1 else len(matrix_string), len(matrix_string)-1})
-            current_row.append(int(matrix_string[i:end_index]))
+            current_row.append(float(matrix_string[i:end_index]))
         elif chara == ';' or chara == ']':
             matrix_nums.append(current_row.copy())
             current_row.clear()
@@ -20,26 +22,7 @@ def read_matrix(matrix_string):
             continue
     return matrix_nums
 
-def row_reduce(input_matrix):
-    matrix_size = input_matrix.shape
-    print(input_matrix)
-    # forward elimination
-    for i in range(matrix_size[1]): # cols
-        for j in range(i+1, matrix_size[0], 1): # rows
-            if(i < j and input_matrix[j,i] != 0): # only eliminate elements in lower half if not 0
-                input_matrix[j, :] = input_matrix[j, :] - input_matrix[i, :]*input_matrix[j,i]/input_matrix[i,i]
-                print("Eliminted: ({i},{j})".format(i = i, j = j))
-                print(input_matrix)
-    
-    for i in reversed(range(matrix_size[1])): # cols
-        for j in range(matrix_size[0]-1-i,-1,-1): # rows
-            if(i > j and input_matrix[j,i] != 0):
-                input_matrix[j, :] = input_matrix[j, :] - input_matrix[i, :]*input_matrix[j,i]/input_matrix[i,i]
-                print("Eliminted: ({i},{j})".format(i = i, j = j))
-                print(input_matrix)
 
-
-    
 def main():
     # create memory to store values
     variable_memory = dict()
@@ -52,14 +35,13 @@ def main():
         if(input_line == "exit"):
             break
 
-
         store_result = False
         first_var = True
 
         for i in range(len(input_line)):
             if input_line[i].isalpha(): # handle variables/function calls
 
-                # check for function calls (VERY BAD input handling rn lol)
+                check for function calls (VERY BAD input handling rn lol)
                 if(input_line[i:i+6] == "reduce"):
                     var_name = input_line[7:len(input_line)-1]
                     if(var_name in variable_memory):
@@ -67,11 +49,11 @@ def main():
                     else:
                         print("Given variable '{var_name}' is not defined.".format(var_name = var_name))
                     break
-                elif(input_line[i:i+3] == "mem"):
+                if(input_line[i:i+3] == "mem"):
                     print(variable_memory)
                     break
                 
-                # read var nname
+                # read var name
                 j = i
                 while (j < len(input_line)) and input_line[j].isalnum():
                     j = j + 1
@@ -107,6 +89,13 @@ def main():
                 continue
 
         # print(np_matrix)
+
+# Major Cases:
+# Assignment vs no-assigment
+# Computation regardless of above case using order of ops.
+#   1). Grouping
+#   2). Mul/Div
+#   3). Add/Sub
 
 if __name__ == "__main__":
     main()
