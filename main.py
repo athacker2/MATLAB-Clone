@@ -62,7 +62,7 @@ def main():
             # store value + print if store_result == true else, just print
             solution = evaluate(input_line,variable_memory)
             if store_result:
-                variable_memory[var_name] = solution
+                variable_memory[var_name] = float(solution)
                 print(var_name, '\n    ', variable_memory[var_name])
             else:
                 print(solution)

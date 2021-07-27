@@ -28,6 +28,7 @@ def find_operation_bounds(expression, op_index):
 def evaluate(expression, variable_memory):
     """Takes input for an expression w/o grouping symbols and evaluates it following PEMDAS (minus the P)"""
     expression = expression.replace(' ','') # removes all spaces (might cause issues w/matrices later on)
+    expression = expression.replace('--','+') # remove double negative (this is the ONLY dup negative handling i'm going to do)
     while(expression.find('^') != -1): # start with exponentials
         exponent_pos = expression.find('^')
         #find operands
