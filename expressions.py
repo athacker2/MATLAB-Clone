@@ -34,97 +34,51 @@ def evaluate(expression, variable_memory):
         left_limit,right_limit = find_operation_bounds(expression, exponent_pos)
         base_var = expression[left_limit:exponent_pos].strip()
         exponent_var = expression[exponent_pos+1:right_limit].strip()
-        # evalate exponential
-        if not num_reqs.fullmatch(base_var):
-            lookup = variable_memory[base_var.replace('-','')]
-            base_var = lookup if base_var[0] != '-' else -1*lookup
-        if not num_reqs.fullmatch(exponent_var):
-            lookup = variable_memory[exponent_var.replace('-','')]
-            exponent_var = lookup if exponent_var[0] != '-' else -1*lookup
+        # evaluate 
         solution = pow(float(base_var),float(exponent_var))
         # check for 'negative gobble'
         if solution > 0 and base_var[0] == '-':
             solution = '+' + str(solution)
         # update expression
         expression = expression[:left_limit] + str(solution) + expression[right_limit:]
-        # print(expression)
-    while(expression.find('*') != -1): # do multiplication next
+        #print(expression)
+    while(expression.find('*') != -1 or expression.find('/') != -1): # do mul/div next
         mul_pos = expression.find('*')
-        #find operands
-        left_limit,right_limit = find_operation_bounds(expression,mul_pos)
-        left_operand = expression[left_limit:mul_pos].strip()
-        right_operand = expression[mul_pos+1:right_limit].strip()
-        # evalate
-        if not num_reqs.fullmatch(left_operand):
-            lookup = variable_memory[left_operand.replace('-','')]
-            left_operand = lookup if left_operand[0] != '-' else -1*lookup
-        if not num_reqs.fullmatch(right_operand):
-            lookup = variable_memory[right_operand.replace('-','')]
-            right_operand = lookup if right_operand[0] != '-' else -1*lookup
-        solution = float(left_operand)*float(right_operand)
-        # check for 'negative gobble'
-        if solution > 0 and left_operand[0] == '-':
-            solution = '+' + str(solution)
-        # update expression
-        expression = expression[:left_limit] + str(solution) + expression[right_limit:]
-        # print(expression)
-    while(expression.find('/') != -1): # do division next
         div_pos = expression.find('/')
+        op_pos = div_pos if (div_pos < mul_pos and div_pos != -1 or mul_pos == -1) else mul_pos
         #find operands
-        left_limit,right_limit = find_operation_bounds(expression,div_pos)
-        left_operand = expression[left_limit:div_pos].strip()
-        right_operand = expression[div_pos+1:right_limit].strip()
-        # evalate
-        if not num_reqs.fullmatch(left_operand):
-            lookup = variable_memory[left_operand.replace('-','')]
-            left_operand = lookup if left_operand[0] != '-' else -1*lookup
-        if not num_reqs.fullmatch(right_operand):
-            lookup = variable_memory[right_operand.replace('-','')]
-            right_operand = lookup if right_operand[0] != '-' else -1*lookup
-        solution = float(left_operand)/float(right_operand)
+        left_limit,right_limit = find_operation_bounds(expression,op_pos)
+        left_operand = expression[left_limit:op_pos].strip()
+        right_operand = expression[op_pos+1:right_limit].strip()
+        # evaluate
+        if op_pos == mul_pos:
+            solution = float(left_operand)*float(right_operand)
+        else:
+            solution = float(left_operand)/float(right_operand)
         # check for 'negative gobble'
         if solution > 0 and left_operand[0] == '-':
             solution = '+' + str(solution)
         # update expression
         expression = expression[:left_limit] + str(solution) + expression[right_limit:]
-        # print(expression)
-    while(expression.find('+') != -1): # do addition next
-        add_pos = expression.find('+')
+        #print(expression)
+    while(expression.find('+',1) != -1 or expression.find('-',1) != -1): # do add/sub next (start search from 1 past to ignore leading + and - signs)
+        add_pos = expression.find('+',1)
+        sub_pos = expression.find('-',1)
+        op_pos = sub_pos if (sub_pos < add_pos and sub_pos != -1 or add_pos == -1) else add_pos
         #find operands
-        left_limit,right_limit = find_operation_bounds(expression,add_pos)
-        left_operand = expression[left_limit:add_pos].strip()
-        right_operand = expression[add_pos+1:right_limit].strip()
-        # evalate
-        if not num_reqs.fullmatch(left_operand):
-            lookup = variable_memory[left_operand.replace('-','')]
-            left_operand = lookup if left_operand[0] != '-' else -1*lookup
-        if not num_reqs.fullmatch(right_operand):
-            lookup = variable_memory[right_operand.replace('-','')]
-            right_operand = lookup if right_operand[0] != '-' else -1*lookup
-        solution = float(left_operand)+float(right_operand)
+        left_limit,right_limit = find_operation_bounds(expression,op_pos)
+        left_operand = expression[left_limit:op_pos].strip()
+        right_operand = expression[op_pos+1:right_limit].strip()
+        # evaluate
+        if op_pos == add_pos:
+            solution = float(left_operand)+float(right_operand)
+        else:
+            solution = float(left_operand)-float(right_operand)
         # check for 'negative gobble'
         if solution > 0 and left_operand[0] == '-':
             solution = '+' + str(solution)
         # update expression
         expression = expression[:left_limit] + str(solution) + expression[right_limit:]
-        # print(expression)
-    while(expression.find('-') != -1): # do subtraction next
-        sub_pos = expression.find('-')
-        #find operands
-        left_limit,right_limit = find_operation_bounds(expression,sub_pos)
-        left_operand = expression[left_limit:sub_pos].strip()
-        right_operand = expression[sub_pos+1:right_limit].strip()
-        # evalate
-        if not num_reqs.fullmatch(left_operand):
-            left_operand = variable_memory[left_operand]
-        if not num_reqs.fullmatch(right_operand):
-            right_operand = variable_memory[right_operand]
-        solution = float(left_operand)-float(right_operand)
-        # check for 'negative gobble'
-        if solution > 0 and left_operand[0] == '-':
-            solution = '+' + str(solution)
-        # update expression
-        expression = expression[:left_limit] + str(solution) + expression[right_limit:]
-        # print(expression)
-    # print("Final Expression:", expression)
+        #print(expression)
+    #print("Final Expression:", expression)
     return expression

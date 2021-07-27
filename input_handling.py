@@ -1,6 +1,7 @@
 import re
 
 def all_vars_exist(input_line, variable_memory):
+    return_line = input_line
     char_reqs = re.compile(r'[^\W]')
     j = -1
     for i, char in enumerate(input_line):
@@ -15,7 +16,10 @@ def all_vars_exist(input_line, variable_memory):
             if(not (variable in variable_memory.keys())):
                 print("Error: Variable {variable} is not in memory.".format(variable=variable))
                 return False
-    return True
+            else:
+                var_pos = return_line.find(variable)
+                return_line = return_line[:var_pos] + str(variable_memory[variable]) + return_line[var_pos+len(variable):]
+    return return_line
 
 def read_matrix(matrix_string):
     matrix_nums = list()

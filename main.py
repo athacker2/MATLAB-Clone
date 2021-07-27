@@ -40,9 +40,11 @@ def main():
             input_line = input_line[input_line.find('=')+1:].strip()
             # print("Expression:", input_line)
 
-        # ensure all variables used in expression are defined, else throw error
-        if not all_vars_exist(input_line, variable_memory):
+        # ensure all variables used in expression are defined, else throw error, replace vars w/vals if all exist
+        input_line = all_vars_exist(input_line, variable_memory)
+        if not input_line:
             continue
+        print("W/o vars:", input_line)
 
         # iterate through the string and simplify it one step at a time following PEMDAS + replace computations as you go + error handle as you go
         while True:
