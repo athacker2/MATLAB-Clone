@@ -1,10 +1,16 @@
 import sys
 import numpy as np
 import re
+import random
 
 from advanced_ops import *
 from input_handling import *
 from expressions import *
+
+def clean_memory(variable_memory):
+    """Clears all temporary matrices from memory created during computation of expression"""
+    delete = [key for key in variable_memory if key[0:7] == ".matrix"]
+    for key in delete: del variable_memory[key]
 
 def main():
     # create memory to store values
@@ -46,6 +52,20 @@ def main():
             continue
         print("W/o vars:", input_line)
 
+        # find all manually defined matrices, read them, and replace them with temporary variables
+        while(input_line.find('[') != -1):
+            open_index = input_line.find('[')
+            close_index = input_line.find(']',open_index)+1
+            np_matrix = np.array(read_matrix(input_line[open_index:close_index]))
+
+            temp_name = ".matrix" + str(random.randrange(1000000))
+            while temp_name in variable_memory.keys():
+                temp_name = ".matrix" + str(random.randrange(1000000))
+
+            variable_memory[temp_name] = np_matrix
+            input_line = input_line[:open_index] + temp_name + input_line[close_index:]
+            print(variable_memory[temp_name])
+
         # iterate through the string and simplify it one step at a time following PEMDAS + replace computations as you go + error handle as you go
         while True:
             # 1). Find innermost set of parenthesis, evaluate, replace (__) with result, repeat
@@ -62,10 +82,13 @@ def main():
             # store value + print if store_result == true else, just print
             solution = evaluate(input_line,variable_memory)
             if store_result:
-                variable_memory[var_name] = float(solution)
+                variable_memory[var_name] = solution
                 print(var_name, '\n    ', variable_memory[var_name])
             else:
                 print(solution)
+
+            # remove temporary variables created during computation
+            clean_memory(variable_memory)
             break
 
 

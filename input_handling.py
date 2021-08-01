@@ -1,6 +1,7 @@
 import re
 
 def all_vars_exist(input_line, variable_memory):
+    """Takes input for a string expression and checks whether all variables are defined. If so, it replaces all variables with their values (except matrix variables)"""
     return_line = input_line
     char_reqs = re.compile(r'[^\W]')
     j = -1
@@ -16,7 +17,7 @@ def all_vars_exist(input_line, variable_memory):
             if(not (variable in variable_memory.keys())):
                 print("Error: Variable {variable} is not in memory.".format(variable=variable))
                 return False
-            else:
+            elif is_float(variable_memory[variable]):
                 var_pos = return_line.find(variable)
                 return_line = return_line[:var_pos] + str(variable_memory[variable]) + return_line[var_pos+len(variable):]
     return return_line
@@ -39,3 +40,12 @@ def read_matrix(matrix_string):
         else:
             continue
     return matrix_nums
+
+def is_float(x):
+    try:
+        float(x)
+        return True
+    except ValueError:
+        return False
+    except TypeError:
+        return False

@@ -1,4 +1,7 @@
+from input_handling import is_float
 import re
+import numpy as np
+import random
 
 char_reqs = re.compile(r'[\w.]')
 num_reqs = re.compile(r'(-{,1}\d+(?:\.\d+)?)')
@@ -23,8 +26,6 @@ def find_operation_bounds(expression, op_index):
 
 # To Do:
 # 1). Add Matrix Support
-# 2). Variable support is a thing, but still a little finicky at times (i.e. if input is only a var)
-# 3). Maybe replace all variables w/their values immediately instead of one at a time? (during error handling step??)
 def evaluate(expression, variable_memory):
     """Takes input for an expression w/o grouping symbols and evaluates it following PEMDAS (minus the P)"""
     expression = expression.replace(' ','') # removes all spaces (might cause issues w/matrices later on)
@@ -51,13 +52,22 @@ def evaluate(expression, variable_memory):
         left_limit,right_limit = find_operation_bounds(expression,op_pos)
         left_operand = expression[left_limit:op_pos].strip()
         right_operand = expression[op_pos+1:right_limit].strip()
+        # cast operand to appropriate type
+        left_operand = float(left_operand) if is_float(left_operand) else variable_memory[left_operand]
+        right_operand = float(right_operand) if is_float(right_operand) else variable_memory[right_operand]
         # evaluate
         if op_pos == mul_pos:
+            if not is_float(left_operand) and not is_float(right_operand):
+                if left_operand.shape[1] == right_operand.shape[0]:
+                    solution = left_operand @ right_operand
+                else:
+                    print("Error: Mismatch in array dimensions")
+                    return False
             solution = float(left_operand)*float(right_operand)
         else:
             solution = float(left_operand)/float(right_operand)
         # check for 'negative gobble'
-        if solution > 0 and left_operand[0] == '-':
+        if solution > 0 and str(left_operand)[0] == '-':
             solution = '+' + str(solution)
         # update expression
         expression = expression[:left_limit] + str(solution) + expression[right_limit:]
@@ -70,16 +80,32 @@ def evaluate(expression, variable_memory):
         left_limit,right_limit = find_operation_bounds(expression,op_pos)
         left_operand = expression[left_limit:op_pos].strip()
         right_operand = expression[op_pos+1:right_limit].strip()
+        # cast operand to appropriate type
+        left_operand = float(left_operand) if is_float(left_operand) else variable_memory[left_operand]
+        right_operand = float(right_operand) if is_float(right_operand) else variable_memory[right_operand]
         # evaluate
         if op_pos == add_pos:
-            solution = float(left_operand)+float(right_operand)
+            solution = left_operand+right_operand
         else:
-            solution = float(left_operand)-float(right_operand)
+            solution = left_operand-right_operand
+        # create temporary matrix if needed
+        if not is_float(solution):
+            solution = create_temp_variable(solution, variable_memory)
         # check for 'negative gobble'
-        if solution > 0 and left_operand[0] == '-':
-            solution = '+' + str(solution)
-        # update expression
+        if str(left_operand)[0] == '-':
+            if is_float(solution) and solution > 0:
+                solution = '+' + str(solution)
+            elif not is_float(solution):
+                solution = '+' + str(solution)
         expression = expression[:left_limit] + str(solution) + expression[right_limit:]
         #print(expression)
     #print("Final Expression:", expression)
-    return expression
+    return float(expression) if is_float(expression) else variable_memory[expression]
+
+def create_temp_variable(matrix, variable_memory):
+    """Generates a random variable name, stores the input matrix into a dict under that name, and returns the variable name"""
+    var_name = ".matrix" + str(random.randrange(1000000)) # probs replace this magic number later : P
+    while var_name in variable_memory.keys():
+        var_name = ".matrix" + str(random.randrange(1000000))
+    variable_memory[var_name] = matrix
+    return var_name
