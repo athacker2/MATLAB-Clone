@@ -45,7 +45,7 @@ def read_loop(variable_memory):
     input_line = all_vars_exist(input_line, variable_memory)
     if not input_line:
         return True
-    print("W/o vars:", input_line)
+    # print("W/o vars:", input_line)
 
     # find all manually defined matrices, read them, and replace them with temporary variables
     while(input_line.find('[') != -1):
@@ -59,7 +59,7 @@ def read_loop(variable_memory):
 
         variable_memory[temp_name] = np_matrix
         input_line = input_line[:open_index] + temp_name + input_line[close_index:]
-        print(variable_memory[temp_name])
+        # print(variable_memory[temp_name])
 
     # iterate through the string and simplify it one step at a time following PEMDAS + replace computations as you go + error handle as you go
     while True:
@@ -70,12 +70,18 @@ def read_loop(variable_memory):
             inner_expression = input_line[first_open+1:first_close]  # +1 to exclude open para
             # print(inner_expression)
             # evaluate the mini-expression
-            solution = evaluate(inner_expression,variable_memory)
+            valid_op, solution = evaluate(inner_expression,variable_memory)
+            if valid_op == False: # break if error during evaluation
+                return True
             # replace input_line w/ result
             input_line = input_line[:first_open] + str(solution) + input_line[first_close+1:]
-            # print(input_line)
+            print(input_line)
         # store value + print if store_result == true else, just print
-        solution = evaluate(input_line,variable_memory)
+        valid_op, solution = evaluate(input_line,variable_memory)
+        if valid_op == False: # break if error during evaluation
+            return True
+        
+        solution = float(solution) if is_float(solution) else variable_memory[solution]
         if store_result:
             variable_memory[var_name] = solution
             print(var_name, '\n    ', variable_memory[var_name])

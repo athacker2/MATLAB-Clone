@@ -62,14 +62,24 @@ def evaluate(expression, variable_memory):
                     solution = left_operand @ right_operand
                 else:
                     print("Error: Mismatch in array dimensions")
-                    return False
-            solution = float(left_operand)*float(right_operand)
+                    return False, ""
+            else:
+                solution = left_operand*right_operand
         else:
-            solution = float(left_operand)/float(right_operand)
+            if not is_float(left_operand) or not is_float(right_operand):
+                print("Error: Implicit matrix division is not allowed")
+                return False, ""
+            else:
+                solution = left_operand/right_operand
+        # create temporary matrix if needed
+        if not is_float(solution):
+            solution = create_temp_variable(solution, variable_memory)
         # check for 'negative gobble'
-        if solution > 0 and str(left_operand)[0] == '-':
-            solution = '+' + str(solution)
-        # update expression
+        if str(left_operand)[0] == '-':
+            if is_float(solution) and solution > 0:
+                solution = '+' + str(solution)
+            elif not is_float(solution):
+                solution = '+' + str(solution)
         expression = expression[:left_limit] + str(solution) + expression[right_limit:]
         #print(expression)
     while(expression.find('+',1) != -1 or expression.find('-',1) != -1): # do add/sub next (start search from 1 past to ignore leading + and - signs)
@@ -89,8 +99,11 @@ def evaluate(expression, variable_memory):
         else:
             solution = left_operand-right_operand
         # create temporary matrix if needed
+        print("Solution", solution)
         if not is_float(solution):
+            print("Entered")
             solution = create_temp_variable(solution, variable_memory)
+        print("Solution After", solution)
         # check for 'negative gobble'
         if str(left_operand)[0] == '-':
             if is_float(solution) and solution > 0:
@@ -100,7 +113,7 @@ def evaluate(expression, variable_memory):
         expression = expression[:left_limit] + str(solution) + expression[right_limit:]
         #print(expression)
     #print("Final Expression:", expression)
-    return float(expression) if is_float(expression) else variable_memory[expression]
+    return True, expression
 
 def create_temp_variable(matrix, variable_memory):
     """Generates a random variable name, stores the input matrix into a dict under that name, and returns the variable name"""
