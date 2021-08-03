@@ -1,6 +1,7 @@
 from input_handling import is_float
 import re
 import numpy as np
+from numpy.linalg import matrix_power # maybe implement your own version later
 import random
 
 char_reqs = re.compile(r'[\w.]')
@@ -25,7 +26,7 @@ def find_operation_bounds(expression, op_index):
     return left_limit,right_limit
 
 # To Do:
-# 1). Add Matrix Support
+# 1). Error handling for matrix size mismatch (i.e add different sized matrices)
 def evaluate(expression, variable_memory):
     """Takes input for an expression w/o grouping symbols and evaluates it following PEMDAS (minus the P)"""
     expression = expression.replace(' ','') # removes all spaces (might cause issues w/matrices later on)
@@ -34,14 +35,31 @@ def evaluate(expression, variable_memory):
         exponent_pos = expression.find('^')
         #find operands
         left_limit,right_limit = find_operation_bounds(expression, exponent_pos)
-        base_var = expression[left_limit:exponent_pos].strip()
-        exponent_var = expression[exponent_pos+1:right_limit].strip()
+        left_operand = expression[left_limit:exponent_pos].strip()
+        right_operand = expression[exponent_pos+1:right_limit].strip()
+        # cast operand to appropriate type
+        left_operand = float(left_operand) if is_float(left_operand) else variable_memory[left_operand]
+        right_operand = int(right_operand) if is_float(right_operand) else variable_memory[right_operand]
         # evaluate 
-        solution = pow(float(base_var),float(exponent_var))
+        if not is_float(right_operand):
+            print("Error: Cannot have matrix exponents")
+            return False, ""
+        elif not is_float(left_operand):
+            if not left_operand.shape[0] == left_operand.shape[1]:
+                print("Error: Cannot exponentiate a non-square matrix")
+                return False, ""
+            solution = matrix_power(left_operand, right_operand)
+        else:
+            solution = pow(float(left_operand),float(right_operand))
+        # create temporary matrix if needed
+        if not is_float(solution):
+            solution = create_temp_variable(solution, variable_memory)
         # check for 'negative gobble'
-        if solution > 0 and base_var[0] == '-':
-            solution = '+' + str(solution)
-        # update expression
+        if str(left_operand)[0] == '-':
+            if is_float(solution) and solution > 0:
+                solution = '+' + str(solution)
+            elif not is_float(solution):
+                solution = '+' + str(solution)
         expression = expression[:left_limit] + str(solution) + expression[right_limit:]
         #print(expression)
     while(expression.find('*') != -1 or expression.find('/') != -1): # do mul/div next
