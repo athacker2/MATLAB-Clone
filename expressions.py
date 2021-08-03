@@ -29,7 +29,7 @@ def find_operands(left_limit, right_limit, op_pos, expression, variable_memory):
     right_operand = expression[op_pos+1:right_limit].strip()
     # cast operand to appropriate type
     left_operand = float(left_operand) if is_float(left_operand) else variable_memory[left_operand.replace("'","")]
-    right_operand = int(right_operand) if is_float(right_operand) else variable_memory[right_operand.replace("'","")]
+    right_operand = float(right_operand) if is_float(right_operand) else variable_memory[right_operand.replace("'","")]
     return left_operand, right_operand
 
 def create_temp_variable(matrix, variable_memory):
@@ -42,7 +42,6 @@ def create_temp_variable(matrix, variable_memory):
 
 # To Do:
 # 1). Error handling for matrix size mismatch (i.e add different sized matrices)
-# 2). Make transpose a seperate while loop (highest precedence operator)
 def evaluate(expression, variable_memory):
     """Takes input for an expression w/o grouping symbols and evaluates it following PEMDAS (minus the P)"""
 
@@ -132,11 +131,8 @@ def evaluate(expression, variable_memory):
         else:
             solution = left_operand-right_operand
         # create temporary matrix if needed
-        print("Solution", solution)
         if not is_float(solution):
-            print("Entered")
             solution = create_temp_variable(solution, variable_memory)
-        print("Solution After", solution)
         # check for 'negative gobble'
         if str(left_operand)[0] == '-':
             if is_float(solution) and solution > 0:

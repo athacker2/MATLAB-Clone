@@ -35,7 +35,7 @@ def read_loop(variable_memory):
         # print(var_name)
         # if the variable name isn't valid throw error
         if(not variable_format.fullmatch(var_name)):
-            print("Invalid Variable Name : {var_name}".format(var_name=var_name))
+            print("Error: Invalid Variable Name '{var_name}'".format(var_name=var_name))
             return True
         # update the input line to only contain the expression to evaluate now
         input_line = input_line[input_line.find('=')+1:].strip()
@@ -75,7 +75,7 @@ def read_loop(variable_memory):
                 return True
             # replace input_line w/ result
             input_line = input_line[:first_open] + str(solution) + input_line[first_close+1:]
-            print(input_line)
+            # print(input_line)
         # store value + print if store_result == true else, just print
         valid_op, solution = evaluate(input_line,variable_memory)
         if valid_op == False: # break if error during evaluation
