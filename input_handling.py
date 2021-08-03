@@ -3,7 +3,7 @@ import re
 def all_vars_exist(input_line, variable_memory):
     """Takes input for a string expression and checks whether all variables are defined. If so, it replaces all variables with their values (except matrix variables)"""
     return_line = input_line
-    char_reqs = re.compile(r'[^\W]')
+    char_reqs = re.compile(r'[\w]')
     j = -1
     for i, char in enumerate(input_line):
         if i<j:
