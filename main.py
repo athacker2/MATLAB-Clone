@@ -7,6 +7,17 @@ from advanced_ops import *
 from input_handling import *
 from expressions import *
 
+def is_function(input_line, first_open, function_memory):
+    """Takes input for a user command and position of first open parenthsis and checks if it corresponds to a function call. Returns corresponding function and new open pos if so."""
+    char_reqs = re.compile(r'[\w]')
+    j = first_open-1
+    while j >= 0 and char_reqs.fullmatch(input_line[j]):
+        j = j - 1
+    variable = input_line[j+1:first_open].strip()
+    if variable in function_memory.keys():
+        return function_memory[variable], j+1
+    return False, 0
+
 def clean_memory(variable_memory):
     """Clears all temporary matrices from memory created during computation of expression"""
     delete = [key for key in variable_memory if key[0:7] == ".matrix"]
@@ -24,6 +35,7 @@ def read_loop(variable_memory):
 
     if(input_line == 'mem'):
         print(variable_memory)
+        print(function_memory)
         return True
 
     # identify if we are storing result or not
@@ -42,7 +54,7 @@ def read_loop(variable_memory):
         # print("Expression:", input_line)
 
     # ensure all variables used in expression are defined, else throw error, replace vars w/vals if all exist
-    input_line = all_vars_exist(input_line, variable_memory)
+    input_line = all_vars_exist(input_line, variable_memory, function_memory)
     if not input_line:
         return True
     # print("W/o vars:", input_line)
@@ -68,13 +80,21 @@ def read_loop(variable_memory):
             first_close = input_line.find(')')
             first_open = input_line.rfind('(',0,first_close)
             inner_expression = input_line[first_open+1:first_close]  # +1 to exclude open para
-            # print(inner_expression)
             # evaluate the mini-expression
             valid_op, solution = evaluate(inner_expression,variable_memory)
             if valid_op == False: # break if error during evaluation
                 return True
-            # replace input_line w/ result
-            input_line = input_line[:first_open] + str(solution) + input_line[first_close+1:]
+            # check if parenthesis correspond to function or not
+            function_call, new_open = is_function(input_line, first_open, function_memory)
+            if not function_call:
+                # replace input_line w/ result
+                input_line = input_line[:first_open] + str(solution) + input_line[first_close+1:]
+            else:
+                solution = function_call(float(solution) if is_float(solution) else variable_memory[solution])
+                if not is_float(solution):
+                    solution = create_temp_variable(solution,variable_memory)
+                input_line = input_line[:new_open] + str(solution) + input_line[first_close+1:]
+                
             # print(input_line)
         # store value + print if store_result == true else, just print
         valid_op, solution = evaluate(input_line,variable_memory)

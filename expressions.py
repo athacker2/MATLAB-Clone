@@ -1,8 +1,7 @@
-from input_handling import is_float
+from input_handling import is_float, create_temp_variable
 import re
 import numpy as np
 from numpy.linalg import matrix_power # maybe implement your own version later
-import random
 
 char_reqs = re.compile(r'[\w.]')
 
@@ -32,16 +31,6 @@ def find_operands(left_limit, right_limit, op_pos, expression, variable_memory):
     right_operand = float(right_operand) if is_float(right_operand) else variable_memory[right_operand.replace("'","")]
     return left_operand, right_operand
 
-def create_temp_variable(matrix, variable_memory):
-    """Generates a random variable name, stores the input matrix into a dict under that name, and returns the variable name"""
-    var_name = ".matrix" + str(random.randrange(1000000)) # probs replace this magic number later : P
-    while var_name in variable_memory.keys():
-        var_name = ".matrix" + str(random.randrange(1000000))
-    variable_memory[var_name] = matrix
-    return var_name
-
-# To Do:
-# 1). Error handling for matrix size mismatch (i.e add different sized matrices)
 def evaluate(expression, variable_memory):
     """Takes input for an expression w/o grouping symbols and evaluates it following PEMDAS (minus the P)"""
 

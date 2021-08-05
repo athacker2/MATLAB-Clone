@@ -1,6 +1,7 @@
 import re
+import random
 
-def all_vars_exist(input_line, variable_memory):
+def all_vars_exist(input_line, variable_memory, function_memory):
     """Takes input for a string expression and checks whether all variables are defined. If so, it replaces all variables with their values (except matrix variables)"""
     return_line = input_line
     char_reqs = re.compile(r'[\w]')
@@ -14,10 +15,10 @@ def all_vars_exist(input_line, variable_memory):
                 j = j + 1
             variable = input_line[i:j]
             # print("Variable:", variable)
-            if(not (variable in variable_memory.keys())):
+            if not (variable in variable_memory.keys()) and not (variable in function_memory.keys()): # throw error if not a variable or function
                 print("Error: Variable {variable} is not in memory.".format(variable=variable))
                 return False
-            elif is_float(variable_memory[variable]):
+            elif variable in variable_memory.keys() and is_float(variable_memory[variable]): # replace value if is variable
                 var_pos = return_line.find(variable)
                 return_line = return_line[:var_pos] + str(variable_memory[variable]) + return_line[var_pos+len(variable):]
     return return_line
@@ -49,3 +50,11 @@ def is_float(x):
         return False
     except TypeError:
         return False
+
+def create_temp_variable(matrix, variable_memory):
+    """Generates a random variable name, stores the input matrix into a dict under that name, and returns the variable name"""
+    var_name = ".matrix" + str(random.randrange(1000000)) # probs replace this magic number later : P
+    while var_name in variable_memory.keys():
+        var_name = ".matrix" + str(random.randrange(1000000))
+    variable_memory[var_name] = matrix
+    return var_name
