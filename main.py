@@ -90,7 +90,9 @@ def read_loop(variable_memory):
                 # replace input_line w/ result
                 input_line = input_line[:first_open] + str(solution) + input_line[first_close+1:]
             else:
-                solution = function_call(float(solution) if is_float(solution) else variable_memory[solution])
+                valid_op, solution = function_call(float(solution) if is_float(solution) else variable_memory[solution])
+                if not valid_op: # break if error in function call
+                    return True
                 if not is_float(solution):
                     solution = create_temp_variable(solution,variable_memory)
                 input_line = input_line[:new_open] + str(solution) + input_line[first_close+1:]

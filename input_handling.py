@@ -43,6 +43,8 @@ def read_matrix(matrix_string):
     return matrix_nums
 
 def is_float(x):
+    if str(type(x)) == "<class 'numpy.ndarray'>":
+        return False
     try:
         float(x)
         return True
