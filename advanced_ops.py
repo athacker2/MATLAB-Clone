@@ -1,12 +1,14 @@
 import numpy as np
 
 def swap_rows(input_matrix, i, j):
+    """Helper functionn that swaps matrix rows"""
     temp_row = np.array(input_matrix[i,:])
     input_matrix[i,:] = input_matrix[j,:]
     input_matrix[j,:] = temp_row
     return input_matrix
 
 def row_reduce(input_matrix):
+    """Reduces a matrix to reduced row echelon form"""
     matrix_size = input_matrix.shape
     # forward elimination
     top_row = 0
@@ -35,6 +37,7 @@ def row_reduce(input_matrix):
     return True, input_matrix
 
 def create_identity(n):
+    """Creates an nxn identity matrix"""
     if int(n) != n:
         print("Error: Invalid Identity Dimension")
         return False, ""
@@ -61,12 +64,3 @@ def singular_value_decomp():
 def test_function(x):
     return 12
 
-function_memory = {
-    "test_func": test_function,
-    "rref": row_reduce,
-    "eye": create_identity,
-    "eig": find_eigenvalues,
-    "cgs": classifical_gram_schmidt,
-    "mgs": modified_gram_schmidt,
-    "svd": singular_value_decomp,
-}

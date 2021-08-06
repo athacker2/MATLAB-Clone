@@ -6,6 +6,7 @@ from numpy.linalg import matrix_power # maybe implement your own version later
 char_reqs = re.compile(r'[\w.]')
 
 def find_operation_bounds(expression, op_index):
+    """Takes input for an expression string and the position of the operation symbol. Outputs the left and right bounds of the arithmetic operation"""
     # find left operand
     j = op_index-1
     while j > 0 and char_reqs.fullmatch(expression[j]):
@@ -24,6 +25,7 @@ def find_operation_bounds(expression, op_index):
     return left_limit,right_limit
 
 def find_operands(left_limit, right_limit, op_pos, expression, variable_memory):
+    """Converts string operands to float and loads variable operands"""
     left_operand = expression[left_limit:op_pos].strip()
     right_operand = expression[op_pos+1:right_limit].strip()
     # cast operand to appropriate type
@@ -72,7 +74,6 @@ def evaluate(expression, variable_memory):
             elif not is_float(solution):
                 solution = '+' + str(solution)
         expression = expression[:left_limit] + str(solution) + expression[right_limit:]
-        #print(expression)
     while(expression.find('*') != -1 or expression.find('/') != -1): # do mul/div next
         mul_pos = expression.find('*')
         div_pos = expression.find('/')
@@ -106,7 +107,6 @@ def evaluate(expression, variable_memory):
             elif not is_float(solution):
                 solution = '+' + str(solution)
         expression = expression[:left_limit] + str(solution) + expression[right_limit:]
-        #print(expression)
     while(expression.find('+',1) != -1 or expression.find('-',1) != -1): # do add/sub next (start search from 1 past to ignore leading + and - signs)
         add_pos = expression.find('+',1)
         sub_pos = expression.find('-',1)
@@ -129,6 +129,4 @@ def evaluate(expression, variable_memory):
             elif not is_float(solution):
                 solution = '+' + str(solution)
         expression = expression[:left_limit] + str(solution) + expression[right_limit:]
-        #print(expression)
-    #print("Final Expression:", expression)
     return True, expression
