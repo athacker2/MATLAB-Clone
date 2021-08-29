@@ -15,12 +15,12 @@ def all_vars_exist(input_line, variable_memory, function_memory):
             while(j < len(input_line) and char_reqs.fullmatch(input_line[j])):
                 j = j + 1
             variable = input_line[i:j]
-            if not (variable in variable_memory.keys()) and not (variable in function_memory.keys()): # throw error if not a variable or function
+            if not (variable_memory.contains_var(variable)) and not (variable in function_memory.keys()): # throw error if not a variable or function
                 print("Error: Variable {variable} is not in memory.".format(variable=variable))
                 return False
-            elif variable in variable_memory.keys() and is_float(variable_memory[variable]): # replace value if is variable
+            elif variable_memory.contains_var(variable) and is_float(variable_memory.get_value(variable)): # replace value if is variable
                 var_pos = return_line.find(variable)
-                return_line = return_line[:var_pos] + str(variable_memory[variable]) + return_line[var_pos+len(variable):]
+                return_line = return_line[:var_pos] + str(variable_memory.get_value(variable)) + return_line[var_pos+len(variable):]
     return return_line
 
 def read_matrix(matrix_string):

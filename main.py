@@ -7,6 +7,8 @@ from input_handling import *
 from expressions import *
 from function_dict import function_memory
 
+from Memory import Memory
+
 def clean_memory(variable_memory):
     """Clears all temporary matrices from memory created during computation of expression"""
     delete = [key for key in variable_memory if key[0:7] == ".matrix"]
@@ -51,7 +53,7 @@ def read_loop(variable_memory):
         close_index = input_line.find(']',open_index)+1
         np_matrix = read_matrix(input_line[open_index:close_index])
 
-        temp_name = create_temp_variable(np_matrix,variable_memory)
+        temp_name = variable_memory.store_temp_matrix(np_matrix)
         input_line = input_line[:open_index] + temp_name + input_line[close_index:]
 
     # iterate through the string and simplify it one step at a time following PEMDAS + replace computations as you go + error handle as you go
@@ -71,11 +73,11 @@ def read_loop(variable_memory):
                 # replace input_line w/ result
                 input_line = input_line[:first_open] + str(solution) + input_line[first_close+1:]
             else:
-                valid_op, solution = function_call(float(solution) if is_float(solution) else variable_memory[solution])
+                valid_op, solution = function_call(float(solution) if is_float(solution) else variable_memory.get_value(solution))
                 if not valid_op: # break if error in function call
                     return True
                 if not is_float(solution):
-                    solution = create_temp_variable(solution,variable_memory)
+                    solution = variable_memory.store_temp_matrix(solution)
                 input_line = input_line[:new_open] + str(solution) + input_line[first_close+1:]
                 
         # store value + print if store_result == true else, just print
@@ -83,21 +85,21 @@ def read_loop(variable_memory):
         if valid_op == False: # break if error during evaluation
             return True
         
-        solution = float(solution) if is_float(solution) else variable_memory[solution]
+        solution = float(solution) if is_float(solution) else variable_memory.get_value(solution)
         if store_result:
-            variable_memory[var_name] = solution
-            print(var_name, '\n    ', variable_memory[var_name])
+            variable_memory.add_value(var_name,solution)
+            print(var_name, '\n    ', variable_memory.get_value(var_name))
         else:
             print(solution)
 
         # remove temporary variables created during computation
-        clean_memory(variable_memory)
+        variable_memory.clean()
         return True
 
 
 def main():
     # create memory to store values
-    variable_memory = dict()
+    variable_memory = Memory()
 
     # Start read loop
     keep_looping = True

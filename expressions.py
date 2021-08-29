@@ -29,8 +29,8 @@ def find_operands(left_limit, right_limit, op_pos, expression, variable_memory):
     left_operand = expression[left_limit:op_pos].strip()
     right_operand = expression[op_pos+1:right_limit].strip()
     # cast operand to appropriate type
-    left_operand = float(left_operand) if is_float(left_operand) else variable_memory[left_operand.replace("'","")]
-    right_operand = float(right_operand) if is_float(right_operand) else variable_memory[right_operand.replace("'","")]
+    left_operand = float(left_operand) if is_float(left_operand) else variable_memory.get_value(left_operand.replace("'",""))
+    right_operand = float(right_operand) if is_float(right_operand) else variable_memory.get_value(right_operand.replace("'",""))
     return left_operand, right_operand
 
 def evaluate(expression, variable_memory):
@@ -45,8 +45,8 @@ def evaluate(expression, variable_memory):
         while j > 0 and char_reqs.fullmatch(expression[j]):
             j = j - 1
         left_limit = 0 if j == 0 else j+1
-        solution = variable_memory[expression[left_limit:op_pos].strip()].transpose()
-        solution = create_temp_variable(solution,variable_memory)
+        solution = variable_memory.get_value(expression[left_limit:op_pos].strip()).transpose()
+        solution = variable_memory.store_temp_matrix(solution)
         expression = expression[:left_limit] + solution + expression[op_pos+1:]
     while(expression.find('^') != -1): # start with exponentials
         exponent_pos = expression.find('^')
@@ -61,12 +61,12 @@ def evaluate(expression, variable_memory):
             if not left_operand.shape[0] == left_operand.shape[1]:
                 print("Error: Cannot exponentiate a non-square matrix")
                 return False, ""
-            solution = matrix_power(left_operand, right_operand)
+            solution = matrix_power(left_operand, int(right_operand))
         else:
             solution = pow(float(left_operand),float(right_operand))
         # create temporary matrix if needed
         if not is_float(solution):
-            solution = create_temp_variable(solution, variable_memory)
+            solution = variable_memory.store_temp_matrix(solution)
         # check for 'negative gobble'
         if str(left_operand)[0] == '-':
             if is_float(solution) and solution > 0:
@@ -99,7 +99,7 @@ def evaluate(expression, variable_memory):
                 solution = left_operand/right_operand
         # create temporary matrix if needed
         if not is_float(solution):
-            solution = create_temp_variable(solution, variable_memory)
+            solution = variable_memory.store_temp_matrix(solution)
         # check for 'negative gobble'
         if str(left_operand)[0] == '-':
             if is_float(solution) and solution > 0:
@@ -121,7 +121,7 @@ def evaluate(expression, variable_memory):
             solution = left_operand-right_operand
         # create temporary matrix if needed
         if not is_float(solution):
-            solution = create_temp_variable(solution, variable_memory)
+            solution = variable_memory.store_temp_matrix(solution)
         # check for 'negative gobble'
         if str(left_operand)[0] == '-':
             if is_float(solution) and solution > 0:
