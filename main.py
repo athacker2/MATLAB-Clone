@@ -9,13 +9,8 @@ from function_dict import function_memory
 
 from Memory import Memory
 
-def clean_memory(variable_memory):
-    """Clears all temporary matrices from memory created during computation of expression"""
-    delete = [key for key in variable_memory if key[0:7] == ".matrix"]
-    for key in delete: del variable_memory[key]
-
 def read_loop(variable_memory):
-    """Function that interprets and evaluates each user line"""
+    """Function that interprets and evaluates each user line. It returns true to keep looping and false to exit"""
     # create regex for valid var names
     variable_format = re.compile(r'[^\W\d_]+[^\W]*')
 

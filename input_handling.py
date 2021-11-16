@@ -56,14 +56,6 @@ def is_float(x):
     except TypeError:
         return False
 
-def create_temp_variable(matrix, variable_memory):
-    """Generates a random variable name, stores the input matrix into a dict under that name, and returns the variable name"""
-    var_name = ".matrix" + str(random.randrange(1000000)) # probs replace this magic number later : P
-    while var_name in variable_memory.keys():
-        var_name = ".matrix" + str(random.randrange(1000000))
-    variable_memory[var_name] = matrix
-    return var_name
-
 def is_function(input_line, first_open, function_memory):
     """Takes input for a user command and position of first open parenthsis and checks if it corresponds to a function call. Returns corresponding function and new open pos if so."""
     char_reqs = re.compile(r'[\w]')

@@ -1,4 +1,4 @@
-from input_handling import is_float, create_temp_variable
+from input_handling import is_float
 import re
 import numpy as np
 from numpy.linalg import matrix_power # maybe implement your own version later

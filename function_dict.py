@@ -8,4 +8,6 @@ function_memory = {
     "cgs": classifical_gram_schmidt,
     "mgs": modified_gram_schmidt,
     "svd": singular_value_decomp,
+    "det":  determinant,
+    "householder": householder_triangularization,
 }
